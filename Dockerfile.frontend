@@ -1,0 +1,13 @@
+# Build stage
+FROM golang:1.23-alpine AS build
+WORKDIR /app
+COPY frontend/go.mod ./
+RUN go mod download
+COPY frontend/*.go ./
+RUN go build -o /usr/local/bin/frontend
+
+# Runtime stage
+FROM alpine:3.18
+COPY --from=build /usr/local/bin/frontend /usr/local/bin/frontend
+EXPOSE 3000
+ENTRYPOINT ["frontend"]

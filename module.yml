@@ -1,0 +1,32 @@
+module:
+  name: hello-world
+  version: "0.1.0"
+
+containers:
+  - name: db
+    # we use the official Postgres image
+    image: postgres:15
+    expose: 5432
+    env: []
+    volumes:
+      # seed script for the DB
+      - hostPath: db/init.sql
+        containerPath: /docker-entrypoint-initdb.d/init.sql
+      # persistent data volume
+      - name: hello-world-data
+        containerPath: /var/lib/postgresql/data
+
+  - name: backend
+    # path to the Dockerfile that builds the Go backend
+    dockerfile: Dockerfile.backend
+    expose: 8080
+    env:
+      - DB_CONN        # your code will read this to know how to connect
+    volumes: []
+
+  - name: frontend
+    dockerfile: Dockerfile.frontend
+    expose: 3000
+    env:
+      - BACKEND_URL    # your code will read this to know where to call
+    volumes: []

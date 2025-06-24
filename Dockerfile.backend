@@ -1,0 +1,13 @@
+# Build stage
+FROM golang:1.23-alpine AS build
+WORKDIR /app
+COPY backend/go.mod backend/go.sum ./
+RUN go mod download
+COPY backend/*.go ./
+RUN go build -o /usr/local/bin/backend
+
+# Runtime stage
+FROM alpine:3.18
+COPY --from=build /usr/local/bin/backend /usr/local/bin/backend
+EXPOSE 8080
+ENTRYPOINT ["backend"]

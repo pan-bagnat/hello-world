@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - hello-net
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    depends_on:
+      - db
+    environment:
+      DB_CONN: "postgres://postgres:postgres@db:5432/postgres?sslmode=disable"
+    ports:
+      - "8080:8080"
+    networks:
+      - hello-net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    depends_on:
+      - backend
+    environment:
+      BACKEND_URL: "http://backend:8080"
+    ports:
+      - "3000:3000"
+    networks:
+      - hello-net
+
+volumes:
+  db-data:
+
+networks:
+  hello-net:
+    driver: bridge
