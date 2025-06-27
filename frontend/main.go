@@ -14,6 +14,7 @@ func main() {
 		log.Fatal("BACKEND_URL must be set")
 	}
 
+	log.Printf("Back url: `%s`\n", backendURL)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		resp, err := http.Get(backendURL + "/hello")
 		if err != nil {
