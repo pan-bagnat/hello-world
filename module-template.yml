@@ -2,31 +2,49 @@ module:
   name: hello-world
   version: "0.1.0"
 
-containers:
+services:
   - name: db
-    # we use the official Postgres image
     image: postgres:15
-    expose: 5432
-    env: []
+    expose:
+      - 5137
+    env:
+      - key: POSTGRES_USER
+        value: postgres
+      - key: POSTGRES_PASSWORD
+        value: postgres
+    depends_on: []           # nothing to wait for
     volumes:
-      # seed script for the DB
-      - hostPath: db/init.sql
-        containerPath: /docker-entrypoint-initdb.d/init.sql
-      # persistent data volume
-      - name: hello-world-data
-        containerPath: /var/lib/postgresql/data
+      - hostPath: ./db/init.sql
+        servicePath: /docker-entrypoint-initdb.d/init.sql
+      - name: db-data
+        servicePath: /var/lib/postgresql/data
 
   - name: backend
-    # path to the Dockerfile that builds the Go backend
-    dockerfile: Dockerfile.backend
-    expose: 8080
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    expose:
+      - 8080
+    publish:
+      - 8080
     env:
-      - DB_CONN        # your code will read this to know how to connect
-    volumes: []
-
+      - key: DB_CONN
+        value: postgres://postgres:postgres@hello-world-db:5432/postgres?sslmode=disable
+    depends_on:
+      - db
   - name: frontend
-    dockerfile: Dockerfile.frontend
-    expose: 3000
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    expose:
+      - 3000
+    publish:
+      - 3000
     env:
-      - BACKEND_URL    # your code will read this to know where to call
-    volumes: []
+      - key: BACKEND_URL
+        value: http://hello-world-backend:8080
+    depends_on:
+      - backend
+
+volumes:
+  - db-data
