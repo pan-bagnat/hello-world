@@ -24,6 +24,7 @@ func main() {
 
 	http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
 		var msg string
+		log.Printf("/hello got called!\n")
 		if err := db.QueryRow("SELECT msg FROM hello LIMIT 1").Scan(&msg); err != nil {
 			http.Error(w, "db error", http.StatusInternalServerError)
 			return
