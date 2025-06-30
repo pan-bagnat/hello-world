@@ -4,7 +4,6 @@ module:
 
 services:
   - name: db
-    image: postgres:15
     build:
       context: .
       dockerfile: Dockerfile.db
@@ -17,8 +16,6 @@ services:
         value: postgres
     depends_on: []
     volumes:
-      - hostPath: ./db/init.sql
-        servicePath: /docker-entrypoint-initdb.d/init.sql
       - name: db-data
         servicePath: /var/lib/postgresql/data
     networks:
@@ -44,8 +41,6 @@ services:
       dockerfile: Dockerfile.frontend
     expose:
       - 3000
-    publish:
-      - 3001
     env:
       - key: BACKEND_URL
         value: http://hello-world-main-backend:8080
@@ -53,9 +48,11 @@ services:
       - backend
     networks:
       - hi-net
+      - pan-bagnat-net
 
 volumes:
   - db-data
 
 networks:
   - hi-net
+  - pan-bagnat-net
