@@ -6,18 +6,20 @@ services:
   - name: db
     image: postgres:15
     expose:
-      - 5137
+      - 5132
     env:
       - key: POSTGRES_USER
         value: postgres
       - key: POSTGRES_PASSWORD
         value: postgres
-    depends_on: []           # nothing to wait for
+    depends_on: []
     volumes:
       - hostPath: ./db/init.sql
         servicePath: /docker-entrypoint-initdb.d/init.sql
       - name: db-data
         servicePath: /var/lib/postgresql/data
+    networks:
+      - hi-net
 
   - name: backend
     build:
@@ -25,13 +27,13 @@ services:
       dockerfile: Dockerfile.backend
     expose:
       - 8080
-    publish:
-      - 8080
     env:
       - key: DB_CONN
-        value: postgres://postgres:postgres@hello-world-db:5432/postgres?sslmode=disable
+        value: postgres://postgres:postgres@hello-world-main-db:5432/postgres?sslmode=disable
     depends_on:
       - db
+    networks:
+      - hi-net
   - name: frontend
     build:
       context: .
@@ -39,12 +41,17 @@ services:
     expose:
       - 3000
     publish:
-      - 3000
+      - 3001
     env:
       - key: BACKEND_URL
-        value: http://hello-world-backend:8080
+        value: http://hello-world-main-backend:8080
     depends_on:
       - backend
+    networks:
+      - hi-net
 
 volumes:
   - db-data
+
+networks:
+  - hi-net
