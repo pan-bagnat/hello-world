@@ -30,15 +30,25 @@ func main() {
 		}
 
 		// Simple HTML page showing the message
-		fmt.Fprintf(w, `
-      <!DOCTYPE html>
-      <html>
-        <head><title>Hello-World Module</title></head>
-        <body>
-          <h1>%s</h1>
-        </body>
-      </html>
-    `, body)
+		fmt.Fprintf(w, `<!DOCTYPE html>
+		<html>
+			<head>
+				<meta charset="UTF-8">
+				<title>Hello-World Module</title>
+				<style>
+				/* Force white background */
+				body {
+					background-color: white;
+					margin: 0;
+					padding: 20px;
+					font-family: sans-serif;
+				}
+				</style>
+			</head>
+			<body>
+				<h1>%s</h1>
+			</body>
+		</html>`, body)
 	})
 
 	log.Println("frontend listening on :3000")
