@@ -54,5 +54,6 @@ volumes:
   - db-data
 
 networks:
-  - hi-net
-  - pan-bagnat-net
+  - name: hi-net
+  - name: pan-bagnat-net
+    type: external
