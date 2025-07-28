@@ -1,0 +1,51 @@
+services:
+  hello-world-main-db:
+    build:
+      context: "."
+      dockerfile: "Dockerfile.db"
+    expose:
+      - "5132"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+    networks:
+      - "hi-net"
+
+  hello-world-main-backend:
+    build:
+      context: "."
+      dockerfile: "Dockerfile.backend"
+    depends_on:
+      - "hello-world-main-db"
+    expose:
+      - "8080"
+    environment:
+      DB_CONN: "postgres://postgres:postgres@hello-world-main-db:5432/postgres?sslmode=disable"
+    networks:
+      - "hi-net"
+
+  hello-world-main-frontend:
+    build:
+      context: "."
+      dockerfile: "Dockerfile.frontend"
+    depends_on:
+      - "hello-world-main-backend"
+    expose:
+      - "3000"
+    environment:
+      BACKEND_URL: "http://hello-world-main-backend:8080"
+    networks:
+      - "hi-net"
+      - "pan-bagnat-net"
+
+volumes:
+  db-data:
+
+networks:
+  hi-net:
+    name: hi-net
+    driver: bridge
+  pan-bagnat-net:
+    external: true
