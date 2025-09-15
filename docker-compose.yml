@@ -11,7 +11,7 @@ services:
     volumes:
       - "db-data:/var/lib/postgresql/data"
     networks:
-      - "hi-net"
+      - "hiiihuhu-net"
 
   backend:
     build:
